@@ -32,25 +32,83 @@ window.addEventListener('DOMContentLoaded', () => {
       .then(reg => console.log('Service Worker registrado con éxito', reg))
       .catch(err => console.warn('Error al registrar Service Worker', err));
   }
+
+  // Live Cloud Database Polling: Fetch changes every 30 seconds
+  setInterval(() => {
+    // Only poll if the tab is visible to save battery/bandwidth
+    if (document.visibilityState === 'visible') {
+      fetchStateFromCloud();
+    }
+  }, 30000);
 });
 
-// Load state from LocalStorage
+// Load state from LocalStorage and Cloudflare API
 function loadState() {
+  // 1. Instant local load (Fast feedback)
   const savedState = localStorage.getItem(STORAGE_KEY);
   if (savedState) {
     try {
       state = JSON.parse(savedState);
+      updateUI();
     } catch (e) {
       console.error("Error parsing saved state", e);
     }
+  } else {
+    updateUI();
   }
-  
-  updateUI();
+
+  // 2. Fetch live global state from cloud database
+  fetchStateFromCloud();
 }
 
-// Save state to LocalStorage
+async function fetchStateFromCloud() {
+  try {
+    const res = await fetch('./api/state');
+    if (res.ok) {
+      const cloudState = await res.json();
+      if (cloudState && 'active' in cloudState) {
+        // Compare with local state to see if it changed
+        const localStr = localStorage.getItem(STORAGE_KEY) || '';
+        const cloudStr = JSON.stringify(cloudState);
+        if (localStr !== cloudStr) {
+          state = cloudState;
+          localStorage.setItem(STORAGE_KEY, cloudStr);
+          updateUI();
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Cloud Sync: Error al conectar con la base de datos", err);
+  }
+}
+
+// Save state to LocalStorage and Cloudflare API
 function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  const stateStr = JSON.stringify(state);
+  localStorage.setItem(STORAGE_KEY, stateStr);
+  
+  // If admin, sync to cloud database
+  if (getIsAdmin()) {
+    syncStateToCloud(stateStr);
+  }
+}
+
+async function syncStateToCloud(stateStr) {
+  try {
+    const res = await fetch('./api/state', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'admin777' // Backend API admin validation
+      },
+      body: stateStr
+    });
+    if (!res.ok) {
+      console.warn("Cloud Sync: Fallo al guardar en la nube", res.statusText);
+    }
+  } catch (err) {
+    console.error("Cloud Sync: Error de red al sincronizar", err);
+  }
 }
 
 // Reset/Clean Tournament (Triggers custom confirmation modal)
