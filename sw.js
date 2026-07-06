@@ -1,4 +1,4 @@
-const CACHE_NAME = 'efootball-cache-v5';
+const CACHE_NAME = 'efootball-cache-v6';
 const ASSETS = [
   './',
   './index.html',
