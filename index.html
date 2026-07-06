@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>eFootball World Cup - Tournament Manager</title>
+  <!-- PWA Support -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="logo.png">
+  
+  <!-- CSS Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <img src="logo.png" alt="eFootball Logo">
+        <div>
+          <h1>eFootball WC</h1>
+          <span style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Tournament Manager</span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px;" id="header-actions">
+        <!-- Dynamically populated via JS -->
+      </div>
+    </header>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-view="view-posiciones">
+        <i class="icon-chart"></i>
+        <span>Posiciones</span>
+      </button>
+      <button class="nav-tab" data-view="view-fixture">
+        <i class="icon-calendar"></i>
+        <span>Fixture</span>
+      </button>
+      <button class="nav-tab" data-view="view-sorteo">
+        <i class="icon-users"></i>
+        <span>Sorteo / Admin</span>
+      </button>
+    </nav>
+
+    <!-- VIEWS -->
+
+    <!-- 1. STANDINGS VIEW -->
+    <main id="view-posiciones" class="view active">
+      <div class="card card-green">
+        <h2 class="card-title"><i class="icon-trophy" style="color: var(--accent-gold);"></i> Tabla de Posiciones</h2>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+          Se clasifica en base a la bolsa acumulada de puntos de la pareja. Los <strong>dos primeros</strong> pasan a la Gran Final el Fin de Semana.
+        </p>
+        
+        <div class="table-responsive">
+          <table class="standings-table">
+            <thead>
+              <tr>
+                <th style="width: 50px;">Pos</th>
+                <th>Pareja (Jugadores)</th>
+                <th style="text-align: center;">PJ</th>
+                <th style="text-align: center;">PG</th>
+                <th style="text-align: center;">PE</th>
+                <th style="text-align: center;">PP</th>
+                <th style="text-align: center;">GF</th>
+                <th style="text-align: center;">GC</th>
+                <th style="text-align: center; color: var(--accent-green);">Bolsa</th>
+              </tr>
+            </thead>
+            <tbody id="standings-body">
+              <!-- Dynamically populated via JS -->
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Legend -->
+        <div style="display: flex; gap: 16px; margin-top: 16px; font-size: 0.75rem; color: var(--text-secondary);">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="display: inline-block; width: 12px; height: 12px; border-left: 3px solid var(--accent-gold); background: rgba(251,191,36,0.1);"></span>
+            <span>Zona Gran Final (Top 1)</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="display: inline-block; width: 12px; height: 12px; border-left: 3px solid var(--text-primary); background: rgba(255,255,255,0.05);"></span>
+            <span>Zona Gran Final (Top 2)</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 2. FIXTURES & RESULTS VIEW -->
+    <main id="view-fixture" class="view">
+      <div class="day-nav" id="day-nav-bar">
+        <button class="day-btn active" data-day="lunes">Lunes (J1)</button>
+        <button class="day-btn" data-day="martes">Martes (J2)</button>
+        <button class="day-btn" data-day="jueves">Jueves (J3)</button>
+        <button class="day-btn recovery-day" data-day="viernes">Viernes (Recuperación)</button>
+        <button class="day-btn" data-day="finde" style="border-color: var(--accent-gold); color: var(--accent-gold);">Weekend (Finales)</button>
+      </div>
+
+      <!-- Jornada 1: Lunes -->
+      <section id="day-lunes" class="day-content active">
+        <!-- Dynamically populated series list -->
+      </section>
+
+      <!-- Jornada 2: Martes -->
+      <section id="day-martes" class="day-content">
+        <!-- Dynamically populated series list -->
+      </section>
+
+      <!-- Jornada 3: Jueves -->
+      <section id="day-jueves" class="day-content">
+        <!-- Dynamically populated series list -->
+      </section>
+
+      <!-- Viernes: Recuperación -->
+      <section id="day-viernes" class="day-content">
+        <div class="card">
+          <div class="recovery-container">
+            <i class="icon-clock"></i>
+            <h2 class="recovery-title">Día de Recuperación</h2>
+            <p class="recovery-desc">
+              El viernes está reservado para disputar partidos postergados, descansar y preparar la estrategia para la Gran Final del Fin de Semana.
+            </p>
+            <div class="recovery-stats">
+              <div class="rec-stat-card">
+                <div class="rec-stat-val" id="stat-pending-matches">0</div>
+                <div class="rec-stat-lbl">Partidos Pendientes</div>
+              </div>
+              <div class="rec-stat-card">
+                <div class="rec-stat-val" id="stat-total-goals">0</div>
+                <div class="rec-stat-lbl">Goles Totales</div>
+              </div>
+            </div>
+            <div id="recovery-pending-list" style="width: 100%; max-width: 500px; margin-top: 16px; text-align: left;">
+              <!-- Dynamic list of pending matches -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Fin de Semana: Gran Final -->
+      <section id="day-finde" class="day-content">
+        <!-- Dynamically populated Grand Final board -->
+      </section>
+    </main>
+
+    <!-- 3. DRAW / ADMIN SETUP VIEW -->
+    <main id="view-sorteo" class="view">
+      <!-- Locked configuration state for non-admin -->
+      <div class="card" id="draw-config-card-locked">
+        <div style="text-align: center; padding: 40px 20px;">
+          <i class="icon-settings" style="font-size: 3.5rem; color: rgba(255,255,255,0.05); display: block; margin-bottom: 16px;"></i>
+          <h2 style="font-size: 1.25rem; font-weight: 700; text-transform: uppercase; margin-bottom: 12px;">Sección Protegida</h2>
+          <p style="font-size: 0.9rem; color: var(--text-secondary); max-width: 400px; margin: 0 auto 20px auto;">
+            Para configurar el sorteo de parejas, reiniciar el torneo o ingresar resultados, activa el Modo Administrador.
+          </p>
+          <button class="btn-primary" style="max-width: 200px; margin: 0 auto; background: linear-gradient(135deg, var(--accent-cyan) 0%, #0284c7 100%); color: #fff; box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);" onclick="openAdminModal()">
+            Acceso Admin
+          </button>
+        </div>
+      </div>
+
+      <!-- Draw Configuration -->
+      <div class="card" id="draw-config-card" style="display: none;">
+        <h2 class="card-title"><i class="icon-users" style="color: var(--accent-blue);"></i> Configuración del Sorteo</h2>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+          Ingresa los nombres de los 8 jugadores (repartidos en Bombo A y Bombo B) y los 8 países. El sistema emparejará aleatoriamente un jugador de cada bombo y le asignará un país a cada uno.
+        </p>
+
+        <div class="form-grid">
+          <!-- Pot A (4 Players) -->
+          <div class="pot-column">
+            <h3>Bombo A <span class="pot-badge pot-badge-a">Jugador 1</span></h3>
+            <div class="input-group">
+              <label>Jugador A1</label>
+              <input type="text" id="p-a1" class="input-control" value="Carlos">
+            </div>
+            <div class="input-group">
+              <label>Jugador A2</label>
+              <input type="text" id="p-a2" class="input-control" value="Mateo">
+            </div>
+            <div class="input-group">
+              <label>Jugador A3</label>
+              <input type="text" id="p-a3" class="input-control" value="Sofía">
+            </div>
+            <div class="input-group">
+              <label>Jugador A4</label>
+              <input type="text" id="p-a4" class="input-control" value="Lucas">
+            </div>
+          </div>
+
+          <!-- Pot B (4 Players) -->
+          <div class="pot-column">
+            <h3>Bombo B <span class="pot-badge pot-badge-b">Jugador 2</span></h3>
+            <div class="input-group">
+              <label>Jugador B1</label>
+              <input type="text" id="p-b1" class="input-control" value="Diego">
+            </div>
+            <div class="input-group">
+              <label>Jugador B2</label>
+              <input type="text" id="p-b2" class="input-control" value="Valentina">
+            </div>
+            <div class="input-group">
+              <label>Jugador B3</label>
+              <input type="text" id="p-b3" class="input-control" value="Thiago">
+            </div>
+            <div class="input-group">
+              <label>Jugador B4</label>
+              <input type="text" id="p-b4" class="input-control" value="Martina">
+            </div>
+          </div>
+        </div>
+
+        <!-- 8 Countries -->
+        <div class="card" style="background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px;">
+          <h3 style="font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px;">Lista de Países</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <input type="text" id="c-1" class="input-control" value="Argentina">
+            <input type="text" id="c-2" class="input-control" value="Brasil">
+            <input type="text" id="c-3" class="input-control" value="Francia">
+            <input type="text" id="c-4" class="input-control" value="Inglaterra">
+            <input type="text" id="c-5" class="input-control" value="España">
+            <input type="text" id="c-6" class="input-control" value="Alemania">
+            <input type="text" id="c-7" class="input-control" value="Italia">
+            <input type="text" id="c-8" class="input-control" value="Portugal">
+          </div>
+        </div>
+
+        <button class="btn-primary" id="btnRunDraw" onclick="runDraw()">
+          <i class="icon-ball"></i> Realizar Sorteo
+        </button>
+      </div>
+
+      <!-- Draw Results -->
+      <div class="card card-green" id="draw-results-card" style="display: none;">
+        <h2 class="card-title"><i class="icon-crown" style="color: var(--accent-gold);"></i> Parejas e Hitos del Sorteo</h2>
+        <p style="font-size: 0.85rem; color: var(--text-secondary);">
+          Los emparejamientos y países asignados de manera aleatoria. ¡Listos para iniciar la competencia!
+        </p>
+        
+        <div class="pairs-grid" id="pairs-container">
+          <!-- Dynamically populated pairs -->
+        </div>
+    <!-- Modal de Login Admin -->
+    <div id="admin-modal" class="modal-overlay" style="display: none;">
+      <div class="modal-content card">
+        <h2 class="card-title" style="color: var(--accent-cyan); border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 16px;"><i class="icon-settings" style="color: var(--accent-cyan);"></i> Acceso Administrador</h2>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+          Ingresa la contraseña para activar el **Modo Administrador** y permitir modificaciones en sorteos, parejas o marcadores.
+        </p>
+        <div class="input-group">
+          <label style="font-weight: 600;">Contraseña Administrador</label>
+          <input type="password" id="admin-passcode" class="input-control" placeholder="••••••••" onkeydown="if(event.key==='Enter') loginAdmin()">
+        </div>
+        <div id="login-error-msg" style="color: var(--accent-danger); font-size: 0.8rem; margin-top: 10px; font-weight: 600; display: none;">
+          ⚠️ Contraseña incorrecta. Inténtalo de nuevo.
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button class="btn-primary" style="margin-top: 0; background: linear-gradient(135deg, var(--accent-cyan) 0%, #0284c7 100%); color: #fff; box-shadow: 0 0 10px rgba(0,210,255,0.2);" onclick="loginAdmin()">Ingresar</button>
+          <button class="reset-btn" style="flex: 1; border-radius: 10px;" onclick="closeAdminModal()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Confirmación de Reinicio -->
+    <div id="confirm-modal" class="modal-overlay" style="display: none;">
+      <div class="modal-content card" style="border-color: var(--accent-danger) !important; box-shadow: 0 0 25px rgba(244, 63, 94, 0.25);">
+        <h2 class="card-title" style="color: var(--accent-danger); border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 16px;"><i class="icon-settings" style="color: var(--accent-danger);"></i> ¿Reiniciar Torneo?</h2>
+        <p style="font-size: 0.9rem; color: var(--text-primary); margin-bottom: 12px; font-weight: 600;">
+          ¿Estás seguro de que deseas reiniciar el torneo?
+        </p>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.4;">
+          Esta acción borrará de forma permanente todos los datos, incluyendo jugadores, parejas, fixture y resultados cargados hasta el momento. Esta acción no se puede deshacer.
+        </p>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-primary" style="margin-top: 0; background: linear-gradient(135deg, var(--accent-danger) 0%, #be123c 100%); color: #fff; box-shadow: 0 0 10px rgba(244,63,94,0.2);" onclick="executeReset()">Reiniciar</button>
+          <button class="reset-btn" style="flex: 1; border-radius: 10px;" onclick="closeConfirmModal()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JavaScript Application -->
+  <script src="app.js"></script>
+</body>
+</html>
