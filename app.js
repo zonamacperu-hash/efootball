@@ -1316,81 +1316,32 @@ function logoutAdmin() {
   updateUI();
 }
 
-// IMPORT & EXPORT TOURNAMENT STATE
-function exportTournamentData() {
+// SAVE TOURNAMENT STATE TO CLOUDFLARE KV
+async function saveStateToCloud() {
   if (!getIsAdmin()) return;
+  
+  // Save locally first
+  saveState();
+  
+  const stateStr = JSON.stringify(state);
+  
   try {
-    const rawString = JSON.stringify(state);
-    // Encode to Base64 (using btoa and encodeURIComponent for UTF-8 compatibility)
-    const base64String = btoa(encodeURIComponent(rawString).replace(/%([0-9A-F]{2})/g, (match, p1) => {
-      return String.fromCharCode('0x' + p1);
-    }));
-    
-    // Copy to clipboard
-    navigator.clipboard.writeText(base64String).then(() => {
-      alert("¡Datos del torneo exportados con éxito! El código de respaldo ha sido copiado a tu portapapeles. Puedes enviarlo a tus otros dispositivos.");
-    }).catch(err => {
-      console.error("Clipboard error", err);
-      // Fallback: prompt the user with the text
-      prompt("Copia este código de respaldo:", base64String);
+    const res = await fetch('./api/state', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'admin777' // Backend API admin validation
+      },
+      body: stateStr
     });
-  } catch (e) {
-    console.error("Export error", e);
-    alert("Error al exportar datos del torneo: " + e.message);
-  }
-}
-
-function openImportModal() {
-  if (!getIsAdmin()) return;
-  document.getElementById('import-modal').style.display = 'flex';
-  document.getElementById('import-data-textarea').value = '';
-  document.getElementById('import-error-msg').style.display = 'none';
-  document.getElementById('import-data-textarea').focus();
-}
-
-function closeImportModal() {
-  document.getElementById('import-modal').style.display = 'none';
-}
-
-function importTournamentData() {
-  if (!getIsAdmin()) return;
-  const textarea = document.getElementById('import-data-textarea');
-  const errorMsg = document.getElementById('import-error-msg');
-  const code = textarea.value.trim();
-  
-  if (!code) {
-    alert("Por favor ingresa un código de datos.");
-    return;
-  }
-  
-  try {
-    // Decode from Base64 (UTF-8 compatible)
-    const decodedString = decodeURIComponent(atob(code).split('').map((c) => {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    
-    const importedState = JSON.parse(decodedString);
-    
-    // Structural validation check
-    if (typeof importedState !== 'object' || importedState === null || 
-        !('active' in importedState) || !('players' in importedState) || 
-        !('teams' in importedState) || !('fixtures' in importedState)) {
-      throw new Error("Estructura de datos inválida.");
+    if (res.ok) {
+      alert("¡Resultados y datos del torneo guardados con éxito en la nube!");
+    } else {
+      alert("Fallo al guardar en la nube: " + res.statusText);
     }
-    
-    // Apply state
-    state = importedState;
-    saveState();
-    
-    closeImportModal();
-    updateUI();
-    
-    alert("¡Torneo importado con éxito! Los datos y resultados han sido sincronizados.");
-  } catch (e) {
-    console.error("Import error", e);
-    errorMsg.style.display = 'block';
-    textarea.value = '';
-    textarea.focus();
+  } catch (err) {
+    console.error("Cloud Sync Error", err);
+    alert("Error de red al conectar con la base de datos de Cloudflare: " + err.message);
   }
 }
 
@@ -1401,6 +1352,9 @@ function renderHeaderActions() {
   const isAdmin = getIsAdmin();
   if (isAdmin) {
     container.innerHTML = `
+      <button class="reset-btn" onclick="saveStateToCloud()" style="background: rgba(0, 255, 135, 0.1); color: var(--accent-green); border-color: rgba(0, 255, 135, 0.2);">
+        <i class="icon-check"></i> Guardar Cambios
+      </button>
       <button class="reset-btn" onclick="resetTournament()" style="background: rgba(244, 63, 94, 0.1); color: var(--accent-danger); border-color: rgba(244, 63, 94, 0.2);">
         <i class="icon-settings"></i> Reiniciar
       </button>

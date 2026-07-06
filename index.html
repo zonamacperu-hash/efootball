@@ -255,22 +255,6 @@
         </div>
       </div>
 
-      <!-- Sincronizar y Respaldar (Visible solo para administradores) -->
-      <div class="card" id="admin-sync-card" style="display: none; border-color: rgba(0, 210, 255, 0.1);">
-        <h2 class="card-title"><i class="icon-share" style="color: var(--accent-cyan);"></i> Compartir / Sincronizar Datos</h2>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
-          Copia el código del torneo de este dispositivo para importarlo en otro, o importa un código para sincronizar los resultados actuales.
-        </p>
-        <div style="display: flex; gap: 10px;">
-          <button class="btn-primary" style="margin-top: 0; background: linear-gradient(135deg, var(--accent-cyan) 0%, #0284c7 100%); color: #fff;" onclick="exportTournamentData()">
-            Exportar Datos
-          </button>
-          <button class="reset-btn" style="flex: 1; border-radius: 10px; margin-top: 0; color: var(--text-primary); border-color: var(--border-color);" onclick="openImportModal()">
-            Importar Datos
-          </button>
-        </div>
-      </div>
-
     <!-- Modal de Login Admin -->
     <div id="admin-modal" class="modal-overlay" style="display: none;">
       <div class="modal-content card">
@@ -307,27 +291,7 @@
           <button class="reset-btn" style="flex: 1; border-radius: 10px;" onclick="closeConfirmModal()">Cancelar</button>
         </div>
       </div>
-    </div>
 
-    <!-- Modal de Importar Datos -->
-    <div id="import-modal" class="modal-overlay" style="display: none;">
-      <div class="modal-content card">
-        <h2 class="card-title" style="color: var(--accent-cyan); border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 16px;"><i class="icon-settings" style="color: var(--accent-cyan);"></i> Importar Torneo</h2>
-        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
-          Pega el código de texto que exportaste del otro dispositivo para restaurar el sorteo y todos los resultados.
-        </p>
-        <div class="input-group">
-          <label style="font-weight: 600;">Código de Datos</label>
-          <textarea id="import-data-textarea" class="input-control" rows="6" placeholder="Pega el código aquí..." style="resize: none; font-family: monospace; font-size: 0.75rem; background: rgba(0,0,0,0.2); border-color: var(--border-color); color: var(--text-primary); width: 100%; border-radius: 8px; padding: 8px; box-sizing: border-box;"></textarea>
-        </div>
-        <div id="import-error-msg" style="color: var(--accent-danger); font-size: 0.8rem; margin-top: 10px; font-weight: 600; display: none;">
-          ⚠️ Código inválido o corrupto. Por favor verifícalo.
-        </div>
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-          <button class="btn-primary" style="margin-top: 0; background: linear-gradient(135deg, var(--accent-cyan) 0%, #0284c7 100%); color: #fff; box-shadow: 0 0 10px rgba(0,210,255,0.2);" onclick="importTournamentData()">Guardar e Importar</button>
-          <button class="reset-btn" style="flex: 1; border-radius: 10px;" onclick="closeImportModal()">Cancelar</button>
-        </div>
-      </div>
     </div>
 
   </div>
